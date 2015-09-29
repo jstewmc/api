@@ -42,7 +42,7 @@ Every request requires a URL when it's instantiated.
 
 You can get a request's URL with `getUrl()`:
 
-```
+```php
 use Jstewmc\Api;
 
 // create a new GET request
@@ -60,7 +60,7 @@ Every request has an HTTP method name that's the same as its classname.
 
 You can get a request's method name with `getMethod()`:
 
-```
+```php
 use Jstewmc\Api;
 
 // create a new request
@@ -90,9 +90,9 @@ The default options are:
 - `CURLOPT_RETURNTRANSFER` is `true` (do return the output as a string)
 - `CURLOPT_HTTPHEADER` is `['Accept: application/json', 'Content-type: application/json']` (do send/receive JSON)
 
-Keep in mind, when you use the `setOptions()` method, the default options will be over-written, not merged. It's important not to over-write the `CURLOPT_RETURNTRANSFER` option. Otherwise, the library will not work!
+Keep in mind, when you use the `setOptions()` method, the default options will be over-written, not merged. 
 
-Also, because a request's options are set last, you can use a request's options to over-write anything about the request. For example, if you wanted to change a `POST` request to a `GET` request (for some reason), you could use the following code:
+Because a request's options are set last, you can use a request's options to over-write anything about the request. For example, if you wanted to change a `POST` request to a `GET` request (for some reason), you could use the following code:
 
 ```php
 use Jstewmc\Api;
@@ -104,9 +104,11 @@ $request = new Request\Post('http://example.com');
 $request->setOptions([CURLOPT_CUSTOMREQUEST => 'POST']);
 ```
 
+Just be careful. It's important not to over-write the `CURLOPT_RETURNTRANSFER` option. Otherwise, the library will not work!
+
 ### Data
 
-Unlike `Get` and `Delete` requests, `Put` and `Post` requests may include data, an associative array of data to include in the request's body. 
+Unlike `Get` and `Delete` requests, `Put` and `Post` requests may include data, an associative array of key-value pairs to include in the request's body as [JSON](http://www.json.org). 
 
 You can get and set the request's data with `getData()` and `setData()`, respectively:
 
@@ -123,14 +125,12 @@ $request->setData(['foo' => 'bar', 'baz' => 'qux']);
 $request->getData();  // returns ['foo' => 'bar', 'baz' => 'qux']
 ```
 
-The data will always be encoded as [JSON](http://www.json.org). 
-
 
 ## Responses
 
-A response is the data from the service's output.
+A response is the data contained in the service's output.
 
-You can parse the service's output using the `parse()` method:
+You can parse the service's output using the `parse()` method (keep in mind, this would normally be handled for you by the client):
 
 ```php
 use Jstewmc\Api;
@@ -139,14 +139,10 @@ use Jstewmc\Api;
 $response = new Response();
 
 // parse the service's output
-// keep in mind, this would normally be handled for you by the client
-//
 $response->parse('{"foo":"bar"}');
 ```
 
-Once you've parsed the service's response, the data is stored in the response's data property.
-
-You can get and set the response's data with `getData()` and `setData()`, respectively:
+Once the service's response has been parsed, the data is stored in the response's data property. You can get and set the response's data with `getData()` and `setData()`, respectively:
 
 ```php
 use Jstewmc\Api;
@@ -155,8 +151,6 @@ use Jstewmc\Api;
 $reponse = new Response();
 
 // parse the service's output
-// keep in mind, this would normally be handled for you by the client
-//
 $response->parse('{"foo":"bar"}');
 
 // get the response's data
@@ -175,9 +169,9 @@ Since responses can vary wildly between API's, it's up to you to know how to tra
 
 ## Client
 
-The client manges the relationship between the service request and the service response. 
+The client manges the relationship between the request and the response. 
 
-It has two methods `send()` and `receive()`:
+The client has two methods `send()` and `receive()`:
 
 ```php
 use Jstewmc\Api;
@@ -203,17 +197,15 @@ The `send()` method will store the service's raw output and return the client ob
 ```php
 use Jstewmc\Api;
 
-... instead of separate method calls like above
-
-// use constructor and method chaining
+// using constructor and method chaining instead
 $response = $client->send($request)->receive($response);
 ```
 
 If everything goes ok, the `receive()` method will return the response with the service's data. Keep in mind, because PHP passes objects by reference, not value, you don't have to save the return value. You can just use the variable you passed into the method if you want. 
 
-If something goes wrong while connecting to the service, receiving the response, or parsing the output, the `receive()` method will throw an exception.
-
 ## Exceptions
+
+If something goes wrong while connecting to the service, receiving the response, or parsing the output, the `receive()` method will throw an exception.
 
 The following exceptions may be thrown by the `receive()` method:
 
