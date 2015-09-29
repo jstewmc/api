@@ -1,6 +1,6 @@
 <?php
 
-namespace Jstewmc\Api;
+namespace Jstewmc\Api\Request;
 
 /**
  * An API request
@@ -10,7 +10,7 @@ namespace Jstewmc\Api;
  * @license    MIT
  * @since      0.1.0
  */
-class Request
+abstract class Request
 {
 	/* !Constants */
 	
@@ -42,16 +42,10 @@ class Request
 	/* !Protected properties */
 	
 	/**
-	 * @var  mixed[]  the request's data as an associaive array
+	 * @var  string  the request's http method
 	 * @since  0.1.0
 	 */
-	protected $data = [];
-	
-	/**
-	 * @var  string  the request's http method; defaults to "GET"
-	 * @since  0.1.0
-	 */
-	protected $method = self::METHOD_GET;
+	protected $method;
 	
 	/**
 	 * @var  mixed[]  the request's options indexed by curl_setopt() constants or 
@@ -77,17 +71,6 @@ class Request
 	
 	
 	/* !Get methods */
-	
-	/**
-	 * Gets the request's data
-	 *
-	 * @return  mixed[]  the request's data
-	 * @since  0.1.0
-	 */
-	public function getData()
-	{
-		return $this->data;
-	}
 	
 	/**
 	 * Gets the request's method
@@ -124,41 +107,6 @@ class Request
 	
 	
 	/* !Set methods */
-	
-	/**
-	 * Sets the requests's data
-	 *
-	 * @param  mixed[]  $data  the request's data
-	 * @return  self
-	 * @since  0.1.0
-	 */
-	public function setData(Array $data)
-	{
-		$this->data = $data;
-		
-		return $this;
-	}
-	
-	/**
-	 * Sets the request's method
-	 *
-	 * @param  string  the request's method
-	 * @return  self
-	 * @throws  InvalidArgumentException  if $method is not a string
-	 * @since  0.1.0
-	 */
-	public function setMethod($method)
-	{
-		if ( ! is_string($method)) {
-			throw new \InvalidArgumentException(
-				__METHOD__."() expects parameter one, method, to be a string"
-			);
-		}
-		
-		$this->method = $method;
-		
-		return $this;
-	}
 	
 	/**
 	 * Sets the request's options

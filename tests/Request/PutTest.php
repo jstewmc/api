@@ -1,11 +1,11 @@
 <?php
 
-namespace Jstewmc\Api;
+namespace Jstewmc\Api\Request;
 
 /**
- * Tests for the Request class
+ * Tests for the Request\Put class
  */
-class RequestTest extends \PHPUnit_Framework_TestCase
+class PutTest extends \PHPUnit_Framework_TestCase
 {	
 	/* !getData() */
 	
@@ -14,7 +14,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_getData_returnsArray_ifDataDoesNotExist()
 	{
-		return $this->assertEquals([], (new Request('http://example.com'))->getData());
+		return $this->assertEquals([], (new Put('http://example.com'))->getData());
 	}
 	
 	/**
@@ -24,7 +24,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		$data = ['foo' => 'bar', 'baz' => 'qux'];
 		
-		$request = new Request('http://example.com');
+		$request = new Put('http://example.com');
 		$request->setData($data);
 		
 		$this->assertEquals($data, $request->getData());
@@ -36,28 +36,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	/* !getMethod() */
 	
 	/**
-	 * getMethod() should return string if method does not exist
+	 * getMethod() should return string
 	 */
-	public function test_getMethod_returnsString_ifMethodDoesNotExist()
+	public function test_getMethod_returnsString()
 	{
 		return $this->assertEquals(
-			Request::METHOD_GET, 
-			(new Request('http://example.com'))->getMethod()
+			'PUT', 
+			(new Put('http://example.com'))->getMethod()
 		);
-	}
-	
-	
-	/**
-	 * getMethod() should return string if method does exist
-	 */
-	public function test_getMethod_returnsString_ifMethodDoesExist()
-	{
-		$request = new Request('http://example.com');
-		$request->setMethod(Request::METHOD_POST);
-		
-		$this->assertEquals(Request::METHOD_POST, $request->getMethod());
-		
-		return;
 	}
 	
 	
@@ -77,7 +63,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 			]
 		];
 		
-		$this->assertEquals($options, (new Request('http://example.com'))->getOptions());
+		$this->assertEquals($options, (new Put('http://example.com'))->getOptions());
 		
 		return;
 	}
@@ -89,7 +75,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		$options = [CURLOPT_AUTOREFERER => true];
 		
-		$request = new Request('http://example.com');
+		$request = new Put('http://example.com');
 		$request->setOptions($options);
 		
 		$this->assertEquals($options, $request->getOptions());
@@ -108,7 +94,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		$url = 'http://example.com';
 		
-		$request = new Request($url);
+		$request = new Put($url);
 		
 		$this->assertEquals($url, $request->getUrl());
 	}
@@ -123,26 +109,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		$data = ['foo' => 'bar', 'baz' => 'qux'];
 		
-		$request = new Request('http://example.com');
+		$request = new Put('http://example.com');
 		
 		$this->assertSame($request, $request->setData($data));
 		$this->assertEquals($data, $request->getData());
-		
-		return;
-	}
-	
-	
-	/* !setMethod() */
-	
-	/**
-	 * setMethod() should return self
-	 */
-	public function test_setMethod_returnsSelf()
-	{
-		$request = new Request('http://example.com');
-		
-		$this->assertSame($request, $request->setMethod(Request::METHOD_POST));
-		$this->assertEquals(Request::METHOD_POST, $request->getMethod());
 		
 		return;
 	}
@@ -157,7 +127,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 	{
 		$options = [CURLOPT_AUTOREFERER => true];
 		
-		$request = new Request('http://example.com');
+		$request = new Put('http://example.com');
 		
 		$this->assertSame($request, $request->setOptions($options));
 		$this->assertEquals($options, $request->getOptions());
