@@ -21,41 +21,13 @@ class Client
 	protected $ch;
 	
 	/**
-	 * @var  Jstewmc\Api\Request  the api request
+	 * @var  null|false|string  null if a request has not been sent; false if a
+	 *     request was sent but the service was unreachable or unavailable; and,
+	 *     a string if the service responded
 	 * @since  0.1.0
 	 */
-	protected $request;
+	protected $output;
 	
-	/**
-	 * @var  Jstewmc\Api\Response  the api response
-	 * @since  0.1.0
-	 */
-	protected $response;
-	
-	
-	/* !Get methods */
-	
-	/**
-	 * Gets the client's request
-	 *
-	 * @return  Jstewmc\Api\Request
-	 * @since  0.1.0
-	 */
-	public function getRequest()
-	{
-		return $this->request;
-	}
-	
-	/**
-	 * Gets the client's response
-	 *
-	 * @return  Jstewmc\Api\Response
-	 * @since  0.1.0
-	 */
-	public function getResponse()
-	{
-		return $this->response;
-	}
 	
 	/* !Magic methods */
 	
@@ -65,7 +37,7 @@ class Client
 	 * @return  self
 	 * @since  0.1.0
 	 */
-	public function __construct(Request $request, Response $response)
+	public function __construct()
 	{
 		// if curl is (somehow) not installed, short-circuit
 		if ( ! function_exists('curl_init')) {
@@ -73,9 +45,6 @@ class Client
 				__METHOD__."() expects the cURL extension to be installed"
 			);
 		}
-		
-		$this->request  = $request;
-		$this->response = $response;
 		
 		$this->ch = curl_init();
 		
@@ -99,15 +68,16 @@ class Client
 	/* !Public methods */
 	
 	/**
-	 * Executes the api request
+	 * "Receives" the service's response
 	 *
-	 * I'll send the request to the service and parse its output. Of course, with
-	 * anything over a network, tons of things can go wrong. For most errors, I'll 
-	 * attempt to throw an appropriately named exception.
+	 * I say "receives" because the client has already received the service's raw
+	 * output. It just hasn't been processed yet. 
 	 *
-	 * @return  void
+	 * @param   Jstewmc\Api\Response  $response  the response to "receive"
+	 * @return  Jstewmc\Api\Response
 	 * @throws  Jstewmc\Api\Exception\ServiceUnavailable  if the service cannot be
-	 *     reached (because of settings) or is unavailable (because of status)
+	 *     reached (because of the request's settings) or is unavailable (because of 
+	 *     the service's status)
 	 * @throws  Jstewmc\Api\Exception\BadResponseStatus  if the response's status 
 	 *     code is not an allowed value (accepts 2XX and 404)
 	 * @throws  Jstewmc\Api\Exception\BadResponseFormat  if the service's response 
@@ -115,84 +85,81 @@ class Client
 	 * @throws  Jstewmc\Api\Exception\EntityNotFound  if the service responds 404
 	 * @since   0.1.0
 	 */
-	public function execute()
+	public function receive(Response $response)
 	{
-		// send the request
-		$output = $this->send();
-		
-		// if the service was reachable and available
-		if ($output !== false) {
-			// if the service responded with an expected http status code
-			$status = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
-			if (in_array((int) $status, [200, 201, 204, 404])) {
-				// if the service's response is valid json
-				if (json_decode($output) !== null) {
-					// parse the output
-					$this->response->parse($output);
-					// if the service responded 404, the entity was not found
-					if ($status == 404) {
-						throw (new Exception\EntityNotFound())
-							->setOutput($output)
-							->setStatus($status)
-							->setResponse($this->response);
-					}
-				} else {
-					// otherwise, the response format is bad
-					throw (new Exception\BadResponseFormat())
-						->setOutput($output)
-						->setStatus($status);
-				}
-			} else {
-				// otherwise, the response status is unexpected
-				throw (new Exception\BadResponseStatus())
-					->setOutput($output)
-					->setStatus($status);
-			}
-		} else {
-			// otherwise, the service was unreachable or unavailable
+		// if the service was unreachable or unavailable, short-circuit
+		if ($this->output === false) {
 			throw new Exception\ServiceUnavailable(
 				curl_error($this->ch), 
 				curl_errno($this->ch)
 			);
 		}
 		
-		return;
+		// get the response's status and define the valid values
+		$status   = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
+		$statuses = [200, 201, 204, 404];
+		
+		// if the service responded with an invalid http status code, short-circuit
+		if ( ! in_array((int) $status, $statuses)) {
+			throw (new Exception\BadResponseStatus())
+				->setOutput($this->output)
+				->setStatus($status);
+		}
+		
+		// if the service's response is invalid json, short-circuit
+		if (json_decode($this->output) === null) {
+			throw (new Exception\BadResponseFormat())
+				->setOutput($this->output)
+				->setStatus($status);
+		}
+		
+		// otherwise, parse the server's output (phew!)
+		$response->parse($this->output);
+		
+		// if the server responded 404, short-circuit
+		if ($status === 404) {
+			throw (new Exception\EntityNotFound())
+				->setOutput($this->output)
+				->setStatus($status)
+				->setResponse($response);
+		}
+		
+		return $response;
 	}
-		
-		
-	/* !Protected methods */
 	
 	/**
-	 * Sends the API request to the service
+	 * Sends the request to the service
 	 *
-	 * @return  string|false
+	 * @param  Jstewmc\Api\Request\Request  $request  the request to send
+	 * @return  self
 	 * @since   0.1.0
 	 */
-	protected function send()
+	public function send(Request\Request $request)
 	{
-		$output = false;
-		
 		// set the request's url
-		curl_setopt($this->ch, CURLOPT_URL, $this->request->getUrl());
+		curl_setopt($this->ch, CURLOPT_URL, $request->getUrl());
 		
 		// set the request's method
-		curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $this->request->getMethod());
+		curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $request->getMethod());
 		
-		// if the request has data, set it as json
-		if ( ! empty($this->request->getData())) {
-			curl_setopt(
-				$this->ch, 
-				CURLOPT_POSTFIELDS, 
-				json_encode($this->request->getData())
-			);	
+		// if the request is a POST or PUT request
+		if ($request instanceof Request\Post || $request instanceof Request\Put) {
+			// if the request has data
+			if ($request->getData()) {
+				curl_setopt(
+					$this->ch, 
+					CURLOPT_POSTFIELDS, 
+					json_encode($request->getData())
+				);	
+			}
 		}
 		
 		// set the request's other options
-		curl_setopt_array($this->ch, $this->request->getOptions());
+		curl_setopt_array($this->ch, $request->getOptions());
 		
 		// execute the request
-		$output = curl_exec($this->ch);
+		$this->output = curl_exec($this->ch);
 		
-		return $output;
+		return $this;
 	}		
 }
