@@ -107,7 +107,7 @@ class Client
 		}
 		
 		// if output actually exists
-		if ($this->output !== null) {
+		if (strlen($this->output)) {
 			// if the output is invalid json, short-circuit
 			if (json_decode($this->output) === null) {
 				throw (new Exception\BadResponseFormat())
