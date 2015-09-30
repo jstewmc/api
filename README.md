@@ -231,9 +231,9 @@ Sorry, but I couldn't find a public API that didn't require an access token.
 
 ## Version
 
-### dev-master
+### 0.1.0 - September 29, 2015
 
-Hmm, we're not stable enough for a release quite yet.
+- Initial release
 
 ## Author
 
