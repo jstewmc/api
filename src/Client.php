@@ -106,15 +106,17 @@ class Client
 				->setStatus($status);
 		}
 		
-		// if the service's response is invalid json, short-circuit
-		if (json_decode($this->output) === null) {
-			throw (new Exception\BadResponseFormat())
-				->setOutput($this->output)
-				->setStatus($status);
+		// if output actually exists
+		if ($this->output !== null) {
+			// if the output is invalid json, short-circuit
+			if (json_decode($this->output) === null) {
+				throw (new Exception\BadResponseFormat())
+					->setOutput($this->output)
+					->setStatus($status);
+			}
+			// otherwise, parse the server's output (phew!)
+			$response->parse($this->output);
 		}
-		
-		// otherwise, parse the server's output (phew!)
-		$response->parse($this->output);
 		
 		// if the server responded 404, short-circuit
 		if ($status === 404) {

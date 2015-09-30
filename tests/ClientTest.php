@@ -33,7 +33,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	 * @var  string  the url for an "entity found" (aka, "ok") response (you must
 	 *     see https://developers.facebook.com/tools/explorer for a new url)
 	 */
-    protected $urlFound = 'https://graph.facebook.com/v2.4/me?fields=id%2Cname&access_token=CAACEdEose0cBANCu6XoPex86h3Ct7ijSlJ4CVSZByNl8ZCTgpZAvXOTU0qgtEm479EFUIrzNrZCOdlyTBTxFgWL3NwkgAEeS9DffnAQUnqJB3Lq8zO6I5IjmILWKTWIRiouJXTmbbcVQ6yMgjoTKaoRxt48wVZCjhNVlm9ouy8hsvQukW7mCkSndG3jc68sKIpnfbKSfAt6x88lVhH5Dv';
+    protected $urlFound = 'https://graph.facebook.com/v2.4/me?fields=id%2Cname&access_token=CAACEdEose0cBAKg2i3ddtCQyo4OcpQ47biEr4MhNOcIctnB8qSok7jTE3xGyVbfM3x3CSNgPe76dQ5k9qJslkG6R1SzOQoOHqlO7AcVnqqAkDcQLwkwoFEpKSRa7LC8JUgaI4naIft85BJwSjxx82F8oOWFeXn0VesfQXZAb4SV8pDoZBh9Hq1eCjNJM9NK3tSPR4bIZBSzKqyX8z7T';
 	
 	/**
 	 * @var  string  the url for an unavailable service
