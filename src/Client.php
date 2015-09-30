@@ -85,7 +85,7 @@ class Client
 	 * @throws  Jstewmc\Api\Exception\EntityNotFound  if the service responds 404
 	 * @since   0.1.0
 	 */
-	public function receive(Response $response)
+	public function receive($response)
 	{
 		// if the service was unreachable or unavailable, short-circuit
 		if ($this->output === false) {
@@ -134,7 +134,7 @@ class Client
 	 * @return  self
 	 * @since   0.1.0
 	 */
-	public function send(Request\Request $request)
+	public function send($request)
 	{
 		// set the request's url
 		curl_setopt($this->ch, CURLOPT_URL, $request->getUrl());
