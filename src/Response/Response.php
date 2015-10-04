@@ -1,6 +1,6 @@
 <?php
 
-namespace Jstewmc\Api;
+namespace Jstewmc\Api\Response;
 
 /**
  * An API response
@@ -9,14 +9,14 @@ namespace Jstewmc\Api;
  * @copyright  2015 Jack Clayton
  * @license    MIT
  * @since      0.1.0
+ * @sinec      0.2.0  update from concrete to abstract class
  */
-class Response
+abstract class Response
 {
 	/* !Protected properties */
 	
 	/**
-	 * @var  mixed[]|null  the response's data as an associative array or null if 
-	 *     the response is invalid json
+	 * @var  mixed[]  the response's data as an associative array
 	 * @since  0.1.0
 	 */
 	protected $data = [];
@@ -58,22 +58,10 @@ class Response
 	 * Parses the service's output
 	 *
 	 * @param  $output  string  the service's output
-	 * @return  self
+	 * @return  bool
 	 * @throws  InvalidArgumentException  if $output is not a string
 	 * @since  0.1.0
+	 * @since  0.2.0  update from concrete to abstract method
 	 */
-	public function parse($output)
-	{
-		// if $output is not a string, short-circuit
-		if ( ! is_string($output)) {
-			throw new \InvalidArgumentException(
-				__METHOD__."() expects parameter one, output, to be a string"
-			);	
-		}
-		
-		// decode the json output as an associative array
-		$this->data = json_decode($output, true);
-		
-		return $this;
-	}
+	abstract public function parse($output);
 }
