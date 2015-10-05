@@ -220,20 +220,14 @@ The `EntityNotFound` exception includes the service's parsed output via the `get
 
 ## Tests
 
-Heads up! Before running the tests:
-
-1. Go to [Graph API Explorer](https://developers.facebook.com/tools/explorer);
-2. Get a new API GET url with a fresh access token;
-3. Replace the url in the `urlFound` property of the `ClientTest` class; and, 
-4. update the expectations in the `test_receive_returnsResponse_ifEntityIsFound` test.
-
-Sorry, but I couldn't find a public API that didn't require an access token.
+Heads up! This library uses the [API Tester](https://github.com/jstewmc/api-tester) for its unit tests. Be sure the API tester is installed (not a big deal) and running before running the tests. Otherwise, all the Client tests will fail!
 
 ## Version
 
 ### dev-master
 
-- _Add Xml response_. Up to now, responses were implicitly JSON. However, now, the response's format is set explicitly using the response type.
+- _Use API Tests_. Before, unit tests for the Client class finagled several public APIs. Now, it uses the API Tests library I wrote.
+- _Add Xml response_. Before, every response was implicitly JSON. Now, you can (er, must) specify the response's format when instantiating the response class.
 
 ### 0.1.0 - September 29, 2015
 
