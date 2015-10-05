@@ -48,7 +48,7 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_getResponse_returnsResponse_ifResponseDoesExist()
 	{
-		$response = new \Jstewmc\Api\Response();
+		$response = new \Jstewmc\Api\Response\Json();
 		
 		$exception = new Exception();
 		$exception->setResponse($response);
@@ -122,7 +122,7 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_setResponse_returnsSelf()
 	{
-		$response = new \Jstewmc\Api\Response();
+		$response = new \Jstewmc\Api\Response\Json();
 		
 		$exception = new Exception();
 		

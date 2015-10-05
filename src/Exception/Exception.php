@@ -26,8 +26,8 @@ class Exception extends \RuntimeException
 	protected $output = false;
 	
 	/**
-	 * @var  Jstewmc\Api\Response|null  the service's response or null if the service 
-	 *    was unavailable or the response was bad
+	 * @var  Jstewmc\Api\Response\Response|null  the service's response or null if 
+	 *    the service was unavailable or the response was bad
 	 * @since  0.1.0
 	 */
 	protected $response;
@@ -56,7 +56,7 @@ class Exception extends \RuntimeException
 	/**
 	 * Gets the exception's response
 	 *
-	 * @return  Jstewmc\Api\Response|null
+	 * @return  Jstewmc\Api\Response\Response|null
 	 * @since  0.1.0
 	 */
 	public function getResponse()
@@ -106,7 +106,7 @@ class Exception extends \RuntimeException
 	 * @return  self
 	 * @since  0.1.0
 	 */
-	public function setResponse(\Jstewmc\Api\Response $response) 
+	public function setResponse(\Jstewmc\Api\Response\Response $response) 
 	{
 		$this->response = $response;
 		
