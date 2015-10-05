@@ -4,49 +4,30 @@ namespace Jstewmc\Api;
 
 /**
  * Tests for the Client class
- *
- * These tests are a little hackish! I couldn't find a public API that didn't require
- * an access token to test against, and I didn't want to hardcode an access token 
- * into the tests. 
- *
- * As a result, most of the tests consist of finagling a public, high-traffic website
- * like google, github, or facebook to test what we need.
  */
 class ClientTest extends \PHPUnit_Framework_TestCase
 {	
-	/**
-	 * @var  string  the url for a "bad" response format (since the client expects
-	 *     json, any normal website will do, because the server will return HTML,
-	 *     not json)
-	 */
-	protected $urlBadFormat = 'https://www.google.com';
+	/* !Protected properties */
 	
 	/**
-	 * @var  string  the url for an "bad" response status (since the client expects
-	 *     a 2XX or 404 status code, a request to a domain that is redirected, a 
-	 *     3XX status code, should suffice) (in a quick search, I found that 
-     *     "http://www.github.com" will redirect to "http://github.com")
-     */
-    protected $urlBadStatus = 'http://www.github.com';
-    
-    /**
-	 * @var  string  the url for an "entity found" (aka, "ok") response (you must
-	 *     see https://developers.facebook.com/tools/explorer for a new url)
+	 * @var  Jstewmc\Url\Url  the request's url
 	 */
-    protected $urlFound = 'https://graph.facebook.com/v2.4/me?fields=id%2Cname&access_token=CAACEdEose0cBABz8OnymMKa0UddYASeKrZBTAkL0hkZCupQKYDysP1ZCgFvruKBk6KbxdPdM4StfCjX8MEoih4qT2yaRdn2aQDhqGVQdZB6ysFlZBJZBgViWOvZCq40RZA5gYLTtuo7lg3uIgcA2ySIl1UFPnX0VNWrwSxZATwAcUBs9fThwBEZCXzlrr2UpfG1ekL4yZBimtajBfs6qm7pUhMX';
+	protected $url;
+	
+	
+	/* !Magic methods */
 	
 	/**
-	 * @var  string  the url for an unavailable service
+	 * Called before each test
+	 *
+	 * @return  void
 	 */
-	protected $urlNoService = 'http://KznXUgApqBCVpnRhoJyNJlpnfyIoLv.com';
-	
-	/**
-	 * @var  string  the url for an "entity not found" (most public API's require a
-	 *     access token; however, in a quick search, Facebook's Graph API seems to
-	 *     authenticate the entity before it authorizes the user, and it'll respond
-	 *     with a 404 for an unauthentic entity id)
-	 */
-	protected $urlNotFound = 'https://graph.facebook.com/KznXUgApqBCVpnRhoJyNJl';
+	public function setUp()
+	{
+		$this->url = new \Jstewmc\Url\Url('http://localhost:8000');
+		
+		return;
+	}
 	
 	
 	/* !receive() */
@@ -60,7 +41,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		$this->setExpectedException('Jstewmc\\Api\\Exception\\ServiceUnavailable');
 		
 		(new Client())
-			->send(new Request\Get($this->urlNoService))
+			->send(new Request\Get('http://x.x.x.x'))
 			->receive(new Response\Json());
 		
 		return;
@@ -74,8 +55,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('Jstewmc\\Api\\Exception\\BadResponseStatus');
 		
+		$this->url->getQuery()->setParameter('code', 301);
+		
 		(new Client())
-			->send(new Request\Get($this->urlBadStatus))
+			->send(new Request\Get((string) $this->url))
 			->receive(new Response\Json());
 		
 		return;
@@ -89,8 +72,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('Jstewmc\\Api\\Exception\\BadResponseFormat');
 		
+		$this->url
+			->getQuery()
+				->setParameter('code', 200)
+				->setParameter('format', 'json')
+				->setParameter('output', '{"foo":}');
+		
 		(new Client())
-			->send(new Request\Get($this->urlBadFormat))
+			->send(new Request\Get((string) $this->url))
 			->receive(new Response\Json());
 		
 		return;
@@ -104,8 +93,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('Jstewmc\\Api\\Exception\\EntityNotFound');
 		
+		$this->url->getQuery()->setParameter('code', 404);
+		
 		(new Client())
-			->send(new Request\Get($this->urlNotFound))
+			->send(new Request\Get((string) $this->url))
 			->receive(new Response\Json());
 			
 		return;
@@ -116,14 +107,16 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_receive_returnsResponse_ifEntityIsFound()
 	{
+		$this->url
+			->getQuery()
+				->setParameter('code', 200)
+				->setParameter('format', 'json')
+				->setParameter('output', '{"foo":"bar"}');
+		
 		return $this->assertEquals(
-			(new Response\Json())
-				->setData([
-					'id' => 10100242434925333,
-					'name' => 'Jack Clayton'
-				]), 
+			(new Response\Json())->setData(['foo' => 'bar']), 
 			(new Client())
-				->send(new Request\Get($this->urlFound))
+				->send(new Request\Get((string) $this->url))
 				->receive(new Response\Json())
 		);
 	}
@@ -136,7 +129,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_send_returnsSelf_ifNoService()
 	{
-		$request = new Request\Get($this->urlNoService);
+		$request = new Request\Get('http://x.x.x.x');
 		
 		$client = new Client();
 		
@@ -150,7 +143,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_send_returnsSelf_ifStatusIsBad()
 	{
-		$request = new Request\Get($this->urlBadStatus);
+		$this->url->getQuery()->setParameter('code', 301);
+		
+		$request = new Request\Get((string) $this->url);
 		
 		$client = new Client();
 		
@@ -164,7 +159,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_send_returnsSelf_ifFormatIsBad()
 	{
-		$request = new Request\Get($this->urlBadFormat);
+		$this->url
+			->getQuery()
+				->setParameter('code', 200)
+				->setParameter('format', 'json')
+				->setParameter('output', '{foo:}');
+		
+		$request = new Request\Get((string) $this->url);
 		
 		$client = new Client();
 		
@@ -178,7 +179,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_send_returnsSelf_ifEntityIsNotFound()
 	{
-		$request = new Request\Get($this->urlNotFound);
+		$this->url->getQuery()->setParameter('code', 404);
+			
+		$request = new Request\Get((string) $this->url);
 		
 		$client = new Client();
 		
@@ -189,10 +192,18 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	
 	/**
 	 * send() should return self if the entity is found
+	 *
+	 * @group  foo
 	 */
 	public function test_send_returnsSelf_ifEntityIsFound()
 	{
-		$request = new Request\Get($this->urlFound);
+		$this->url
+			->getQuery()
+				->setParameter('code', 200)
+				->setParameter('format', 'json')
+				->setParameter('output', '{"foo":"bar"}');
+				
+		$request = new Request\Get((string) $this->url);
 		
 		$client = new Client();
 		
