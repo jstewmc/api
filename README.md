@@ -11,8 +11,8 @@ use Jstewmc\Api;
 // create a new GET request
 $request = new Request\Get('http://example.com');
 
-// create the response
-$response = new Response();
+// create the JSON response
+$response = new Response\Json();
 
 // create the client 
 $client = new Client();
@@ -130,25 +130,27 @@ $request->getData();  // returns ['foo' => 'bar', 'baz' => 'qux']
 
 A response is the data contained in the service's output.
 
-You can parse the service's output using the `parse()` method (keep in mind, this would normally be handled for you by the client):
+This library supports JSON and XML responses with the `Json` and `Xml` response classes:
 
 ```php
 use Jstewmc\Api;
 
-// create a new response
-$response = new Response();
+// create a new JSON response
+$json = new Response\Json();
 
-// parse the service's output
-$response->parse('{"foo":"bar"}');
+// create a new XML response
+$xml = new Response\Xml();
 ```
 
-Once the service's response has been parsed, the data is stored in the response's data property. You can get and set the response's data with `getData()` and `setData()`, respectively:
+Either way, the response's data will automatically be parsed via the `parse()` method. 
+
+Once the service's response has been parsed, the data is stored as an associative array in the response's data property. You can get and set the response's data with `getData()` and `setData()`, respectively:
 
 ```php
 use Jstewmc\Api;
 
 // create a new response
-$reponse = new Response();
+$reponse = new Response\Json();
 
 // parse the service's output
 $response->parse('{"foo":"bar"}');
@@ -162,8 +164,6 @@ $response->setData(['baz' => 'qux']);
 // get the response's new data
 $response->getData();  // returns ['baz' => 'qux']
 ```
-
-A response's data is always parsed as an associative array, not an object. 
 
 Since responses can vary wildly between API's, it's up to you to know how to traverse the data you've received. 
 
@@ -179,8 +179,8 @@ use Jstewmc\Api;
 // create a new GET request
 $request = new Request\Get('http://example.com');
 
-// create a new response
-$response = new Response();
+// create a new JSON response
+$response = new Response\Json();
 
 // create a client
 $client = new Client();
@@ -211,7 +211,7 @@ The following exceptions may be thrown by the `receive()` method:
 
 - `ServiceUnavailable` if the service is unreachable (because of the request's settings) or unavailable (because of the service's status)
 - `BadResponseStatus` if the reponse's status code is not `2XX` or `404`
-- `BadResponseFormat` if the response is not valid JSON
+- `BadResponseFormat` if the response is not valid XML or JSON (depending on response)
 - `EntityNotFound` if the entity was not found
 
 Every exception provides the service's (string) output and (integer) status code via the `getOutput()` and `getStatus()` methods.
@@ -230,6 +230,10 @@ Heads up! Before running the tests:
 Sorry, but I couldn't find a public API that didn't require an access token.
 
 ## Version
+
+### dev-master
+
+- _Add Xml response_. Up to now, responses were implicitly JSON. However, now, the response's format is set explicitly using the response type.
 
 ### 0.1.0 - September 29, 2015
 
