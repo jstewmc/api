@@ -33,7 +33,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	 * @var  string  the url for an "entity found" (aka, "ok") response (you must
 	 *     see https://developers.facebook.com/tools/explorer for a new url)
 	 */
-    protected $urlFound = 'https://graph.facebook.com/v2.4/me?fields=id%2Cname&access_token=CAACEdEose0cBAKg2i3ddtCQyo4OcpQ47biEr4MhNOcIctnB8qSok7jTE3xGyVbfM3x3CSNgPe76dQ5k9qJslkG6R1SzOQoOHqlO7AcVnqqAkDcQLwkwoFEpKSRa7LC8JUgaI4naIft85BJwSjxx82F8oOWFeXn0VesfQXZAb4SV8pDoZBh9Hq1eCjNJM9NK3tSPR4bIZBSzKqyX8z7T';
+    protected $urlFound = 'https://graph.facebook.com/v2.4/me?fields=id%2Cname&access_token=CAACEdEose0cBABz8OnymMKa0UddYASeKrZBTAkL0hkZCupQKYDysP1ZCgFvruKBk6KbxdPdM4StfCjX8MEoih4qT2yaRdn2aQDhqGVQdZB6ysFlZBJZBgViWOvZCq40RZA5gYLTtuo7lg3uIgcA2ySIl1UFPnX0VNWrwSxZATwAcUBs9fThwBEZCXzlrr2UpfG1ekL4yZBimtajBfs6qm7pUhMX';
 	
 	/**
 	 * @var  string  the url for an unavailable service
@@ -61,7 +61,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		
 		(new Client())
 			->send(new Request\Get($this->urlNoService))
-			->receive(new Response());
+			->receive(new Response\Json());
 		
 		return;
 	}
@@ -76,7 +76,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		
 		(new Client())
 			->send(new Request\Get($this->urlBadStatus))
-			->receive(new Response());
+			->receive(new Response\Json());
 		
 		return;
 	}
@@ -91,7 +91,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		
 		(new Client())
 			->send(new Request\Get($this->urlBadFormat))
-			->receive(new Response());
+			->receive(new Response\Json());
 		
 		return;
 	}
@@ -106,7 +106,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		
 		(new Client())
 			->send(new Request\Get($this->urlNotFound))
-			->receive(new Response());
+			->receive(new Response\Json());
 			
 		return;
 	}
@@ -117,14 +117,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	public function test_receive_returnsResponse_ifEntityIsFound()
 	{
 		return $this->assertEquals(
-			(new Response())
+			(new Response\Json())
 				->setData([
 					'id' => 10100242434925333,
 					'name' => 'Jack Clayton'
 				]), 
 			(new Client())
 				->send(new Request\Get($this->urlFound))
-				->receive(new Response())
+				->receive(new Response\Json())
 		);
 	}
 	

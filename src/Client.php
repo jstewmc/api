@@ -108,14 +108,12 @@ class Client
 		
 		// if output actually exists
 		if (strlen($this->output)) {
-			// if the output is invalid json, short-circuit
-			if (json_decode($this->output) === null) {
+			// if the output cannot be parsed, short-circuit
+			if ( ! $response->parse($this->output)) {
 				throw (new Exception\BadResponseFormat())
 					->setOutput($this->output)
 					->setStatus($status);
 			}
-			// otherwise, parse the server's output (phew!)
-			$response->parse($this->output);
 		}
 		
 		// if the server responded 404, short-circuit
