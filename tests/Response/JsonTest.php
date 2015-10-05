@@ -1,11 +1,11 @@
 <?php
 
-namespace Jstewmc\Api;
+namespace Jstewmc\Api\Response;
 
 /**
- * Tests for the Response class
+ * Tests for the Json class
  */
-class ResponseTest extends \PHPUnit_Framework_TestCase
+class JsonTest extends \PHPUnit_Framework_TestCase
 {
 	/* !getData() */
 	
@@ -14,7 +14,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_getData_returnsArray_ifDataDoesNotExist()
 	{
-		return $this->assertEquals([], (new Response())->getData());
+		return $this->assertEquals([], (new Json())->getData());
 	}
 	
 	/**
@@ -24,7 +24,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		$data = ['foo' => 'bar'];
 		
-		$response = new Response();
+		$response = new Json();
 		$response->setData($data);
 		
 		$this->assertEquals($data, $response->getData());
@@ -41,36 +41,36 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('InvalidArgumentException');
 		
-		(new Response())->parse(999);
+		(new Json())->parse(999);
 		
 		return;
 	}
 	
 	/**
-	 * parse() should return self if $output is invalid json
+	 * parse() should return false if $output is invalid json
 	 */
-	public function test_parse_returnsSelf_ifOutputIsInvalid()
+	public function test_parse_returnsFalse_ifOutputIsInvalid()
 	{
 		$output = '{foo:}';
 		
-		$response = new Response();
+		$response = new Json();
 		
-		$this->assertSame($response, $response->parse($output));
-		$this->assertNull($response->getData());
+		$this->assertFalse($response->parse($output));
+		$this->assertEquals([], $response->getData());
 		
 		return;
 	}
 	
 	/**
-	 * parse() should return self if $output is valid json
+	 * parse() should return true if $output is valid json
 	 */
 	public function test_parse_returnsSelf_ifOutputIsValid()
 	{
 		$output = '{"foo":"bar"}';
 		
-		$response = new Response();
+		$response = new Json();
 		
-		$this->assertSame($response, $response->parse($output));
+		$this->assertTrue($response->parse($output));
 		$this->assertEquals(['foo' => 'bar'], $response->getData());
 		
 		return;
@@ -86,7 +86,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 	{
 		$data = ['foo' => 'bar'];
 		
-		$response = new Response();
+		$response = new Json();
 		
 		$this->assertSame($response, $response->setData($data));
 		$this->assertEquals($data, $response->getData());
